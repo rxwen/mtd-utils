@@ -368,7 +368,7 @@ static int vol_node2nums(struct libubi *lib, const char *node, int *dev_num,
 {
 	struct stat st;
 	struct ubi_info info;
-	int i, fd, major, minor;
+	int i, fd, major_dev, minor_dev;
 	char file[strlen(lib->ubi_vol) + 100];
 
 	if (stat(node, &st))
@@ -380,10 +380,10 @@ static int vol_node2nums(struct libubi *lib, const char *node, int *dev_num,
 		return errmsg("\"%s\" is not a character device", node);
 	}
 
-	major = major(st.st_rdev);
-	minor = minor(st.st_rdev);
+	major_dev = major(st.st_rdev);
+	minor_dev = minor(st.st_rdev);
 
-	if (minor == 0) {
+	if (minor_dev == 0) {
 		errno = EINVAL;
 		return errmsg("\"%s\" is not a volume character device", node);
 	}
@@ -401,7 +401,7 @@ static int vol_node2nums(struct libubi *lib, const char *node, int *dev_num,
 			return -1;
 		}
 
-		if (major1 == major)
+		if (major1 == major_dev)
 			break;
 	}
 
@@ -411,7 +411,7 @@ static int vol_node2nums(struct libubi *lib, const char *node, int *dev_num,
 	}
 
 	/* Make sure this UBI volume exists */
-	sprintf(file, lib->ubi_vol, i, minor - 1);
+	sprintf(file, lib->ubi_vol, i, minor_dev - 1);
 	fd = open(file, O_RDONLY);
 	if (fd == -1) {
 		errno = ENODEV;
@@ -422,7 +422,7 @@ static int vol_node2nums(struct libubi *lib, const char *node, int *dev_num,
 		return sys_errmsg("close failed on \"%s\"", file);
 
 	*dev_num = i;
-	*vol_id = minor - 1;
+	*vol_id = minor_dev - 1;
 	errno = 0;
 	return 0;
 }
@@ -439,7 +439,7 @@ static int dev_node2num(struct libubi *lib, const char *node, int *dev_num)
 {
 	struct stat st;
 	struct ubi_info info;
-	int i, major, minor;
+	int i, major_dev, minor_dev;
 
 	if (stat(node, &st))
 		return sys_errmsg("cannot get information about \"%s\"", node);
@@ -449,10 +449,10 @@ static int dev_node2num(struct libubi *lib, const char *node, int *dev_num)
 		return errmsg("\"%s\" is not a character device", node);
 	}
 
-	major = major(st.st_rdev);
-	minor = minor(st.st_rdev);
+	major_dev = major(st.st_rdev);
+	minor_dev = minor(st.st_rdev);
 
-	if (minor != 0) {
+	if (minor_dev != 0) {
 		errno = EINVAL;
 		return errmsg("\"%s\" is not an UBI character device", node);
 	}
@@ -726,7 +726,7 @@ static int do_attach(const char *node, const struct ubi_attach_req *r)
  */
 static int mtd_node_to_num(const char *mtd_dev_node)
 {
-	int major, minor;
+	int major_dev, minor_dev;
 	struct stat sb;
 
 	if (stat(mtd_dev_node, &sb) < 0)
@@ -738,15 +738,15 @@ static int mtd_node_to_num(const char *mtd_dev_node)
 				  mtd_dev_node);
 	}
 
-	major = major(sb.st_rdev);
-	minor = minor(sb.st_rdev);
+	major_dev = major(sb.st_rdev);
+	minor_dev = minor(sb.st_rdev);
 
 	if (major != MTD_CHAR_MAJOR) {
 		errno = EINVAL;
 		return sys_errmsg("\"%s\" is not an MTD device", mtd_dev_node);
 	}
 
-	return minor / 2;
+	return minor_dev / 2;
 }
 
 int ubi_attach(libubi_t desc, const char *node, struct ubi_attach_request *req)
@@ -865,7 +865,7 @@ int ubi_probe_node(libubi_t desc, const char *node)
 {
 	struct stat st;
 	struct ubi_info info;
-	int i, fd, major, minor;
+	int i, fd, major_dev, minor_dev;
 	struct libubi *lib = (struct libubi *)desc;
 	char file[strlen(lib->ubi_vol) + 100];
 
@@ -878,8 +878,8 @@ int ubi_probe_node(libubi_t desc, const char *node)
 		return -1;
 	}
 
-	major = major(st.st_rdev);
-	minor = minor(st.st_rdev);
+	major_dev = major(st.st_rdev);
+	minor_dev = minor(st.st_rdev);
 
 	if (ubi_get_info((libubi_t *)lib, &info))
 		return -1;
@@ -903,11 +903,11 @@ int ubi_probe_node(libubi_t desc, const char *node)
 	if (i > info.highest_dev_num)
 		goto out_not_ubi;
 
-	if (minor == 0)
+	if (minor_dev == 0)
 		return 1;
 
 	/* This is supposdely an UBI volume device node */
-	sprintf(file, lib->ubi_vol, i, minor - 1);
+	sprintf(file, lib->ubi_vol, i, minor_dev - 1);
 	fd = open(file, O_RDONLY);
 	if (fd == -1)
 		goto out_not_ubi;
@@ -919,7 +919,7 @@ int ubi_probe_node(libubi_t desc, const char *node)
 
 out_not_ubi:
 	errmsg("\"%s\" has major:minor %d:%d, but this does not correspond to "
-	       "any existing UBI device or volume", node, major, minor);
+	       "any existing UBI device or volume", node, major_dev, minor_dev);
 	errno = ENODEV;
 	return -1;
 }

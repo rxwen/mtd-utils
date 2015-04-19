@@ -243,12 +243,14 @@ static int parse_opt(int argc, char * const argv[])
 
 static int want_exit(void)
 {
-	return prompt("continue?", false) == true ? 0 : 1;
+	return 1;
+    /*return prompt("continue?", false) == true ? 0 : 1;*/
 }
 
 static int answer_is_yes(const char *msg)
 {
-	return prompt(msg ? : "continue?", false);
+    return 1;
+	/*return prompt(msg ? : "continue?", false);*/
 }
 
 static void print_bad_eraseblocks(const struct mtd_dev_info *mtd,
