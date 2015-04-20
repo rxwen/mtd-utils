@@ -14,9 +14,11 @@
 
 LOCAL_PATH := $(call my-dir)
 
+include $(CLEAR_VARS)
 MTD_SRC := lib/libcrc32.c \
       lib/libfec.c \
       lib/libmtd.c \
+      lib/platform.c \
       lib/libmtd_legacy.c
 UBIFS_SRC := ubi-utils/dictionary.c \
       ubi-utils/libiniparser.c \
@@ -24,36 +26,89 @@ UBIFS_SRC := ubi-utils/dictionary.c \
       ubi-utils/libubi.c \
       ubi-utils/libubigen.c \
       ubi-utils/ubiutils-common.c
+INCLUDES := $(LOCAL_PATH)/include \
+	$(LOCAL_PATH)/ubi-utils/include/
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/include \
+	$(LOCAL_PATH)/ubi-utils/include/
+LOCAL_CFLAGS += -D_GNU_SOURCE -DNO_GETLINE -DNO_RPMATCH
+LOCAL_SRC_FILES := $(UBIFS_SRC) \
+	$(MTD_SRC)
+LOCAL_MODULE := libmtd-utils
+include $(BUILD_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
-
-LOCAL_SRC_FILES := $(UBIFS_SRC) \
-	$(MTD_SRC) \
-	ubi-utils/ubiformat.c 
+LOCAL_SRC_FILES := ubi-utils/ubiformat.c 
 LOCAL_MODULE := ubiformat
-LOCAL_CFLAGS += -D_GNU_SOURCE
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/include \
-	$(LOCAL_PATH)/ubi-utils/include/
+LOCAL_STATIC_LIBRARIES := libmtd-utils
+LOCAL_C_INCLUDES := $(INCLUDES)
 include $(BUILD_EXECUTABLE)
 
 include $(CLEAR_VARS)
-
-LOCAL_SRC_FILES := $(UBIFS_SRC) \
-	$(MTD_SRC) \
-	ubi-utils/mtdinfo.c
-LOCAL_MODULE := mtdinfo
-LOCAL_CFLAGS += -D_GNU_SOURCE
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/include \
-	$(LOCAL_PATH)/ubi-utils/include/
-include $(BUILD_EXECUTABLE)
-
-include $(CLEAR_VARS)
-
-LOCAL_SRC_FILES := $(UBIFS_SRC) \
-	$(MTD_SRC) \
-	ubi-utils/ubiattach.c
+LOCAL_SRC_FILES := ubi-utils/ubiattach.c 
 LOCAL_MODULE := ubiattach
-LOCAL_CFLAGS += -D_GNU_SOURCE
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/include \
-	$(LOCAL_PATH)/ubi-utils/include/
+LOCAL_STATIC_LIBRARIES := libmtd-utils
+LOCAL_C_INCLUDES := $(INCLUDES)
+include $(BUILD_EXECUTABLE)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := ubi-utils/mtdinfo.c
+LOCAL_MODULE := mtdinfo
+LOCAL_STATIC_LIBRARIES := libmtd-utils
+LOCAL_C_INCLUDES := $(INCLUDES)
+include $(BUILD_EXECUTABLE)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := ubi-utils/ubiblock.c
+LOCAL_MODULE := ubiblock
+LOCAL_STATIC_LIBRARIES := libmtd-utils
+LOCAL_C_INCLUDES := $(INCLUDES)
+include $(BUILD_EXECUTABLE)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := ubi-utils/ubidetach.c
+LOCAL_MODULE := ubidetach
+LOCAL_STATIC_LIBRARIES := libmtd-utils
+LOCAL_C_INCLUDES := $(INCLUDES)
+include $(BUILD_EXECUTABLE)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := ubi-utils/ubimkvol.c
+LOCAL_MODULE := ubimkvol
+LOCAL_STATIC_LIBRARIES := libmtd-utils
+LOCAL_C_INCLUDES := $(INCLUDES)
+include $(BUILD_EXECUTABLE)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := ubi-utils/ubirmvol.c
+LOCAL_MODULE := ubirmvol
+LOCAL_STATIC_LIBRARIES := libmtd-utils
+LOCAL_C_INCLUDES := $(INCLUDES)
+include $(BUILD_EXECUTABLE)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := ubi-utils/ubiupdatevol.c
+LOCAL_MODULE := ubiupdatevol
+LOCAL_STATIC_LIBRARIES := libmtd-utils
+LOCAL_C_INCLUDES := $(INCLUDES)
+include $(BUILD_EXECUTABLE)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := ubi-utils/ubirsvol.c
+LOCAL_MODULE := ubirsvol
+LOCAL_STATIC_LIBRARIES := libmtd-utils
+LOCAL_C_INCLUDES := $(INCLUDES)
+include $(BUILD_EXECUTABLE)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := ubi-utils/ubicrc32.c
+LOCAL_MODULE := ubicrc32
+LOCAL_STATIC_LIBRARIES := libmtd-utils
+LOCAL_C_INCLUDES := $(INCLUDES)
+include $(BUILD_EXECUTABLE)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := ubi-utils/ubinfo.c
+LOCAL_MODULE := ubinfo
+LOCAL_STATIC_LIBRARIES := libmtd-utils
+LOCAL_C_INCLUDES := $(INCLUDES)
 include $(BUILD_EXECUTABLE)
